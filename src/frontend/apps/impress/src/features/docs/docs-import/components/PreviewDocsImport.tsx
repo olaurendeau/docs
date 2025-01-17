@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-import { Box } from '@/components/Box';
-import { Text } from '@/components/Text';
+import { Box, Text, StyledLink } from '@/components';
 import { DocToImport } from "../types";
 import { useMemo } from 'react';
 
@@ -87,14 +86,26 @@ const DocTreeItem = ({ docToImport, depth = 0 }: { docToImport: DocToImport; dep
         style={{ paddingLeft: `${depth * 1.5 + 0.75}rem` }}
       >
         <StatusDot $state={docToImport.state} aria-hidden="true" />
-        <Text style={{ 
-          fontWeight: 500, 
-          overflow: 'hidden', 
-          textOverflow: 'ellipsis',
-          flexGrow: 1
-        }}>
-          {docToImport.doc.title}
-        </Text>
+          { docToImport.doc.id ? (
+            <StyledLink href={`/docs/${docToImport.doc.id}`} target="_blank">
+              <Text style={{ 
+                fontWeight: 500, 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis',
+                flexGrow: 1
+              }}>{docToImport.doc.title}</Text>
+            </StyledLink>
+          ) : (
+            <Text style={{ 
+                fontWeight: 500, 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis',
+                flexGrow: 1
+              }}>
+              {docToImport.doc.title}
+            </Text>
+          )}
+          
         <StatusBadge $state={docToImport.state}>
           {docToImport.state}
         </StatusBadge>
