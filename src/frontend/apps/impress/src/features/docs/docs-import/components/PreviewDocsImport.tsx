@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Box, Text, StyledLink } from '@/components';
-import { DocToImport } from "../types";
+import { DocToImport } from '../types';
 import { useMemo } from 'react';
 
 const PreviewContainer = styled(Box)`
@@ -27,11 +27,12 @@ const StatusDot = styled.div<{ $state: DocToImport['state'] }>`
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 50%;
-  background-color: ${({ $state }) => 
-    $state === 'success' ? '#34D399' :
-    $state === 'error' ? '#F87171' :
-    '#60A5FA'
-  };
+  background-color: ${({ $state }) =>
+    $state === 'success'
+      ? '#34D399'
+      : $state === 'error'
+        ? '#F87171'
+        : '#60A5FA'};
 `;
 
 const StatusBadge = styled(Text)<{ $state: DocToImport['state'] }>`
@@ -66,60 +67,73 @@ const ProgressBar = styled.div`
   display: flex;
 `;
 
-const ProgressSegment = styled.div<{ $width: number; $type: 'success' | 'error' | 'pending' }>`
+const ProgressSegment = styled.div<{
+  $width: number;
+  $type: 'success' | 'error' | 'pending';
+}>`
   height: 100%;
   width: ${({ $width }) => `${$width}%`};
   background-color: ${({ $type }) =>
-    $type === 'success' ? '#34D399' :
-    $type === 'error' ? '#F87171' :
-    '#60A5FA'
-  };
+    $type === 'success'
+      ? '#34D399'
+      : $type === 'error'
+        ? '#F87171'
+        : '#60A5FA'};
   transition: width 0.3s ease;
 `;
 
-const DocTreeItem = ({ docToImport, depth = 0 }: { docToImport: DocToImport; depth?: number }) => {
+const DocTreeItem = ({
+  docToImport,
+  depth = 0,
+}: {
+  docToImport: DocToImport;
+  depth?: number;
+}) => {
   return (
     <Box>
-      <DocItem 
-        key={docToImport.doc.title} 
+      <DocItem
+        key={docToImport.doc.title}
         $background="white"
         style={{ paddingLeft: `${depth * 1.5 + 0.75}rem` }}
       >
         <StatusDot $state={docToImport.state} aria-hidden="true" />
-          { docToImport.doc.id ? (
-            <StyledLink href={`/docs/${docToImport.doc.id}`} target="_blank">
-              <Text style={{ 
-                fontWeight: 500, 
-                overflow: 'hidden', 
+        {docToImport.doc.id ? (
+          <StyledLink href={`/docs/${docToImport.doc.id}`} target="_blank">
+            <Text
+              style={{
+                fontWeight: 500,
+                overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                flexGrow: 1
-              }}>{docToImport.doc.title}</Text>
-            </StyledLink>
-          ) : (
-            <Text style={{ 
-                fontWeight: 500, 
-                overflow: 'hidden', 
-                textOverflow: 'ellipsis',
-                flexGrow: 1
-              }}>
+                flexGrow: 1,
+              }}
+            >
               {docToImport.doc.title}
             </Text>
-          )}
-          
+          </StyledLink>
+        ) : (
+          <Text
+            style={{
+              fontWeight: 500,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flexGrow: 1,
+            }}
+          >
+            {docToImport.doc.title}
+          </Text>
+        )}
+
         <StatusBadge $state={docToImport.state}>
           {docToImport.state}
         </StatusBadge>
         {docToImport.error && (
-          <Text 
-            color="danger"
-            style={{ fontSize: '0.875rem' }}
-          >
+          <Text color="danger" style={{ fontSize: '0.875rem' }}>
             {docToImport.error.message || String(docToImport.error)}
           </Text>
         )}
       </DocItem>
       {docToImport.children?.map((child) => (
-        <DocTreeItem 
+        <DocTreeItem
           key={child.doc.title}
           docToImport={child}
           depth={depth + 1}
@@ -129,17 +143,32 @@ const DocTreeItem = ({ docToImport, depth = 0 }: { docToImport: DocToImport; dep
   );
 };
 
-export const PreviewDocsImport = ({ extractedDocs }: { extractedDocs: DocToImport[] }) => {
+export const PreviewDocsImport = ({
+  extractedDocs,
+}: {
+  extractedDocs: DocToImport[];
+}) => {
   const stats = useMemo(() => {
-    const calculateStats = (docs: DocToImport[]): { total: number; success: number; error: number } => {
-      return docs.reduce((acc, doc) => {
-        const childStats = doc.children ? calculateStats(doc.children) : { total: 0, success: 0, error: 0 };
-        return {
-          total: acc.total + 1 + childStats.total,
-          success: acc.success + (doc.state === 'success' ? 1 : 0) + childStats.success,
-          error: acc.error + (doc.state === 'error' ? 1 : 0) + childStats.error,
-        };
-      }, { total: 0, success: 0, error: 0 });
+    const calculateStats = (
+      docs: DocToImport[],
+    ): { total: number; success: number; error: number } => {
+      return docs.reduce(
+        (acc, doc) => {
+          const childStats = doc.children
+            ? calculateStats(doc.children)
+            : { total: 0, success: 0, error: 0 };
+          return {
+            total: acc.total + 1 + childStats.total,
+            success:
+              acc.success +
+              (doc.state === 'success' ? 1 : 0) +
+              childStats.success,
+            error:
+              acc.error + (doc.state === 'error' ? 1 : 0) + childStats.error,
+          };
+        },
+        { total: 0, success: 0, error: 0 },
+      );
     };
 
     return calculateStats(extractedDocs);
@@ -154,13 +183,19 @@ export const PreviewDocsImport = ({ extractedDocs }: { extractedDocs: DocToImpor
       <PreviewContainer $background="white" $padding="none">
         <Box $padding="small">
           {extractedDocs.length === 0 ? (
-            <Text style={{ textAlign: 'center', color: '#6B7280', padding: '1rem 0' }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#6B7280',
+                padding: '1rem 0',
+              }}
+            >
               No documents to import
             </Text>
           ) : (
             <Box>
               {extractedDocs.map((docToImport) => (
-                <DocTreeItem 
+                <DocTreeItem
                   key={docToImport.doc.title}
                   docToImport={docToImport}
                 />
@@ -177,7 +212,11 @@ export const PreviewDocsImport = ({ extractedDocs }: { extractedDocs: DocToImpor
             <ProgressSegment $width={errorPercentage} $type="error" />
             <ProgressSegment $width={pendingPercentage} $type="pending" />
           </ProgressBar>
-          <Box $display="flex" $justifyContent="space-between" $marginTop="small">
+          <Box
+            $display="flex"
+            $justifyContent="space-between"
+            $marginTop="small"
+          >
             <Text style={{ fontSize: '0.875rem', color: '#6B7280' }}>
               {Math.round(successPercentage)}% completed
             </Text>
